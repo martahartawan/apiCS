@@ -27,9 +27,22 @@ class LayananController extends Controller
     {
         $request->validate([
             'name' => 'required',
+            'description' => 'required',
         ]);
 
-        return Layanan::create($request->all());
+        $file = $request->file('image');
+        $fileName = $file->getClientOriginalName();
+        $file->move(public_path('images'), $fileName);
+
+        $layanans = Layanan::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'image' => $fileName
+        ]);
+
+        return response([
+            'data' => $layanans
+        ], 201);
     }
 
     /**
@@ -68,7 +81,7 @@ class LayananController extends Controller
         return Layanan::destroy($id);
     }
 
-     /**
+    /**
      * Search for a name
      *
      * @param  str  $name
@@ -76,6 +89,6 @@ class LayananController extends Controller
      */
     public function search($name)
     {
-        return Layanan::where('name', 'like', '%'.$name.'%')->get();
+        return Layanan::where('name', 'like', '%' . $name . '%')->get();
     }
 }
